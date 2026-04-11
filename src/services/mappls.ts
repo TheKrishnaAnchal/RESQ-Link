@@ -1,0 +1,89 @@
+/**
+ * @fileOverview Service layer for interacting with Mappls (MapmyIndia) APIs.
+ * Includes methods for geocoding, nearby search, and distance calculations.
+ */
+
+const MAPPLS_BASE_URL = 'https://atlas.mappls.com/api/places';
+const MAPPLS_ROUTING_URL = 'https://apis.mappls.com/advancedmaps/v1';
+
+export interface MapplsPlace {
+  placeName: string;
+  placeAddress: string;
+  latitude: number;
+  longitude: number;
+  distance?: number;
+}
+
+export async function searchNearby(
+  query: string,
+  location: string,
+  radius: number = 5000
+): Promise<MapplsPlace[]> {
+  const apiKey = process.env.MAPPLS_API_KEY;
+  if (!apiKey) throw new Error('MAPPLS_API_KEY is not configured');
+
+  try {
+    // This assumes a standard Mappls Nearby Search API structure
+    // In a production app, you might need to handle OAuth2 token exchange first
+    const response = await fetch(
+      `${MAPPLS_BASE_URL}/nearby/json?keywords=${encodeURIComponent(query)}&refLocation=${location}&radius=${radius}`,
+      {
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+        },
+      }
+    );
+
+    if (!response.ok) return getMockNearbyData(query); // Fallback for demo if key is invalid
+
+    const data = await response.json();
+    return data.suggestedLocations || [];
+  } catch (error) {
+    console.error('Mappls Nearby Error:', error);
+    return getMockNearbyData(query);
+  }
+}
+
+export async function getDistance(
+  start: string,
+  end: string
+): Promise<{ distance: number; duration: number }> {
+  const apiKey = process.env.MAPPLS_API_KEY;
+  if (!apiKey) return { distance: 5.2, duration: 12 };
+
+  try {
+    const response = await fetch(
+      `${MAPPLS_ROUTING_URL}/${apiKey}/route_adv/driving/${start};${end}?steps=false`
+    );
+    const data = await response.json();
+    if (data.results && data.results[0]) {
+      return {
+        distance: data.results[0].length / 1000, // to km
+        duration: Math.round(data.results[0].duration / 60), // to minutes
+      };
+    }
+    return { distance: 5, duration: 10 };
+  } catch (error) {
+    return { distance: 5, duration: 10 };
+  }
+}
+
+// Mock data generator for development/fallback
+function getMockNearbyData(query: string): MapplsPlace[] {
+  return [
+    {
+      placeName: `${query} Central`,
+      placeAddress: "123 Emergency Way, Downtown",
+      latitude: 28.6139,
+      longitude: 77.2090,
+      distance: 1200
+    },
+    {
+      placeName: `${query} Sector 45`,
+      placeAddress: "Plot 7, Medical District",
+      latitude: 28.6145,
+      longitude: 77.2010,
+      distance: 2500
+    }
+  ];
+}

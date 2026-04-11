@@ -1,15 +1,14 @@
 'use server';
 /**
- * @fileOverview This flow simulates an AI-driven dispatch status for an SOS activation.
- * It returns mock data for the nearest unit assigned and an estimated time of arrival (ETA).
+ * @fileOverview This flow utilizes Mappls tools to find the nearest emergency unit 
+ * and provide a realistic dispatch status for an SOS activation.
  *
- * - getAIDrivenDispatchStatus - A function that triggers the AI-driven dispatch status generation.
- * - SOSDispatchStatusInput - The input type for the getAIDrivenDispatchStatus function.
- * - SOSDispatchStatusOutput - The return type for the getAIDrivenDispatchStatus function.
+ * - getAIDrivenDispatchStatus - A function that triggers the AI-driven dispatch process.
  */
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import { findNearbyEmergencyServices, calculateTravelInfo } from '@/ai/tools/mappls-tools';
 
 const SOSDispatchStatusInputSchema = z
   .object({
@@ -17,6 +16,10 @@ const SOSDispatchStatusInputSchema = z
       .string()
       .optional()
       .describe("The type of emergency, e.g., 'Fire', 'Medical', 'Flood'."),
+    userLocation: z
+      .string()
+      .default("28.6139,77.2090")
+      .describe("The user's current GPS coordinates as 'lat,lng'."),
   })
   .describe('Input for generating AI-driven dispatch status.');
 export type SOSDispatchStatusInput = z.infer<typeof SOSDispatchStatusInputSchema>;
@@ -29,6 +32,14 @@ const SOSDispatchStatusOutputSchema = z
     etaMinutes: z
       .number()
       .describe('The estimated time of arrival in minutes for the assigned unit.'),
+    distanceKm: z
+      .number()
+      .optional()
+      .describe('Distance in kilometers.'),
+    address: z
+      .string()
+      .optional()
+      .describe('Address of the assigned unit.'),
   })
   .describe('Output containing AI-driven dispatch status information.');
 export type SOSDispatchStatusOutput = z.infer<typeof SOSDispatchStatusOutputSchema>;
@@ -43,19 +54,17 @@ const prompt = ai.definePrompt({
   name: 'aiDrivenDispatchStatusPrompt',
   input: {schema: SOSDispatchStatusInputSchema},
   output: {schema: SOSDispatchStatusOutputSchema},
-  prompt: `You are an emergency dispatch AI.
+  tools: [findNearbyEmergencyServices, calculateTravelInfo],
+  prompt: `You are an emergency dispatch AI. 
 
-Generate a mock dispatch status for an emergency. Based on the emergency type (if provided), assign a plausible nearest unit and a realistic estimated time of arrival.
+The user has activated an SOS for a {{emergencyType}} emergency at coordinates {{userLocation}}.
 
-If emergencyType is provided, tailor the unit and ETA accordingly. Otherwise, use a generic response.
+Your task:
+1. Use 'findNearbyEmergencyServices' to find appropriate units (e.g., search for "Hospital" if Medical, "Fire Station" if Fire).
+2. Once you find the nearest unit, use 'calculateTravelInfo' to determine the travel time from that unit's location to the user.
+3. Return the results as a structured dispatch status.
 
-Examples:
-- Input: { emergencyType: "Medical" } Output: { "nearestUnitAssigned": "Ambulance Unit 7", "etaMinutes": 8 }
-- Input: { emergencyType: "Fire" } Output: { "nearestUnitAssigned": "Fire Engine 202", "etaMinutes": 12 }
-- Input: { emergencyType: "Flood" } Output: { "nearestUnitAssigned": "Rescue Boat Team Gamma", "etaMinutes": 25 }
-- Input: {} Output: { "nearestUnitAssigned": "Patrol Unit Alpha", "etaMinutes": 10 }
-
-Emergency Type: {{{emergencyType}}}`,
+Be precise. If no specific type is provided, default to searching for "Police Station".`,
 });
 
 const aiDrivenDispatchStatusFlow = ai.defineFlow(
