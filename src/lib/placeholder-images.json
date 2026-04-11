@@ -1,3 +1,28 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "fire-station",
+      "description": "City Central Fire Station",
+      "imageUrl": "https://picsum.photos/seed/fire1/400/300",
+      "imageHint": "fire station"
+    },
+    {
+      "id": "hospital",
+      "description": "St. Mary's Emergency Hospital",
+      "imageUrl": "https://picsum.photos/seed/med1/400/300",
+      "imageHint": "hospital building"
+    },
+    {
+      "id": "police",
+      "description": "Metropolitan Police Precinct",
+      "imageUrl": "https://picsum.photos/seed/pol1/400/300",
+      "imageHint": "police station"
+    },
+    {
+      "id": "disaster-scene",
+      "description": "Emergency site photo",
+      "imageUrl": "https://picsum.photos/seed/scene1/400/300",
+      "imageHint": "emergency scene"
+    }
+  ]
 }
