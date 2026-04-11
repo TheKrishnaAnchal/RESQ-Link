@@ -1,6 +1,6 @@
 /**
  * @fileOverview Service layer for interacting with Mappls (MapmyIndia) APIs.
- * Includes methods for geocoding, reverse geocoding, nearby search, and distance calculations.
+ * Includes methods for geocoding, reverse geocoding, nearby search, routing, and distance matrix.
  */
 
 const MAPPLS_BASE_URL = 'https://atlas.mappls.com/api/places';
@@ -127,6 +127,18 @@ export async function getDistance(
   } catch (error) {
     return { distance: 5, duration: 10 };
   }
+}
+
+/**
+ * Mock Distance Matrix for evaluating multiple dispatch options.
+ */
+export async function getDistanceMatrix(origin: string, destinations: string[]) {
+  // Simulate API call comparing multiple endpoints
+  return destinations.map((dest, i) => ({
+    destination: dest,
+    distanceKm: 2 + i * 1.5,
+    durationMinutes: 5 + i * 3
+  }));
 }
 
 function getMockNearbyData(query: string): MapplsPlace[] {
