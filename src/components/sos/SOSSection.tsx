@@ -1,8 +1,7 @@
-
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Flame, Ambulance, Waves, Zap, ShieldCheck, MapIcon, Clock } from "lucide-react";
+import { Flame, Ambulance, Waves, Zap, ShieldCheck, MapIcon, Clock, AlertCircle, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { getAIDrivenDispatchStatus, type SOSDispatchStatusOutput } from "@/ai/flows/ai-driven-dispatch-status-flow";
