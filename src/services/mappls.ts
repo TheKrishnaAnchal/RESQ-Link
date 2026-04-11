@@ -1,6 +1,6 @@
 /**
  * @fileOverview Service layer for interacting with Mappls (MapmyIndia) APIs.
- * Includes methods for geocoding, nearby search, and distance calculations.
+ * Includes methods for geocoding, reverse geocoding, nearby search, and distance calculations.
  */
 
 const MAPPLS_BASE_URL = 'https://atlas.mappls.com/api/places';
@@ -12,38 +12,6 @@ export interface MapplsPlace {
   latitude: number;
   longitude: number;
   distance?: number;
-}
-
-/**
- * Converts a text address into coordinates.
- */
-export async function geocode(address: string): Promise<MapplsPlace | null> {
-  const apiKey = process.env.MAPPLS_API_KEY;
-  if (!apiKey) return { placeName: address, placeAddress: address, latitude: 28.6139, longitude: 77.2090 };
-
-  try {
-    const response = await fetch(
-      `${MAPPLS_BASE_URL}/geocode?address=${encodeURIComponent(address)}`,
-      {
-        headers: { 'Authorization': `Bearer ${apiKey}` },
-      }
-    );
-    if (!response.ok) return null;
-    const data = await response.json();
-    const loc = data.copResults;
-    if (loc) {
-      return {
-        placeName: loc.formattedAddress,
-        placeAddress: loc.formattedAddress,
-        latitude: parseFloat(loc.latitude),
-        longitude: parseFloat(loc.longitude),
-      };
-    }
-    return null;
-  } catch (error) {
-    console.error('Mappls Geocode Error:', error);
-    return null;
-  }
 }
 
 /**
@@ -75,11 +43,62 @@ export async function searchNearby(
       placeAddress: loc.placeAddress,
       latitude: loc.latitude,
       longitude: loc.longitude,
-      distance: loc.distance,
+      distance: loc.distance
     }));
   } catch (error) {
     console.error('Mappls Nearby Error:', error);
     return getMockNearbyData(query);
+  }
+}
+
+/**
+ * Converts an address string into geographic coordinates.
+ */
+export async function geocode(address: string): Promise<MapplsPlace | null> {
+  const apiKey = process.env.MAPPLS_API_KEY;
+  if (!apiKey) return { placeName: address, placeAddress: "Mock Address", latitude: 28.6139, longitude: 77.2090 };
+
+  try {
+    const response = await fetch(
+      `${MAPPLS_BASE_URL}/geocode?address=${encodeURIComponent(address)}`,
+      {
+        headers: { 'Authorization': `Bearer ${apiKey}` },
+      }
+    );
+    const data = await response.json();
+    if (data.copResults && data.copResults.length > 0) {
+      const res = data.copResults[0];
+      return {
+        placeName: res.formattedAddress,
+        placeAddress: res.formattedAddress,
+        latitude: res.latitude,
+        longitude: res.longitude
+      };
+    }
+    return null;
+  } catch (error) {
+    return null;
+  }
+}
+
+/**
+ * Converts geographic coordinates into a human-readable address.
+ */
+export async function reverseGeocode(lat: number, lng: number): Promise<string | null> {
+  const apiKey = process.env.MAPPLS_API_KEY;
+  if (!apiKey) return "256, Mock Street, New Delhi";
+
+  try {
+    const response = await fetch(
+      `${MAPPLS_BASE_URL}/rev_geocode?lat=${lat}&lng=${lng}`,
+      {
+        headers: { 'Authorization': `Bearer ${apiKey}` },
+      }
+    );
+    const data = await response.json();
+    return data.results?.[0]?.formatted_address || null;
+  } catch (error) {
+    return null;
   }
 }
 
