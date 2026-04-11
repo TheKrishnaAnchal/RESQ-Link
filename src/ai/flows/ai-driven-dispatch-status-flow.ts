@@ -9,21 +9,21 @@ import {z} from 'genkit';
 import { 
   findNearbyPlaces, 
   getOptimalRoute, 
-  getAddressFromCoords,
+  getAddressFromCoords, 
   evaluateDispatchOptions 
 } from '@/ai/tools/mappls-tools';
 
 const SOSDispatchStatusInputSchema = z.object({
-  emergencyType: z.string().optional().describe("e.g., 'Fire', 'Medical'"),
-  userLocation: z.string().default("28.6139,77.2090"),
+  emergencyType: z.string().optional().describe("e.g., 'Fire', 'Medical', 'Flood'"),
+  userLocation: z.string().default("28.6139,77.2090").describe("User coordinates in 'lat,lng' format."),
 });
 
 const SOSDispatchStatusOutputSchema = z.object({
-  nearestUnitAssigned: z.string(),
-  etaMinutes: z.number(),
-  dispatchAddress: z.string(),
-  hazardStatus: z.string().optional(),
-  responderRouteId: z.string().optional(),
+  nearestUnitAssigned: z.string().describe("The name of the closest emergency unit."),
+  etaMinutes: z.number().describe("Estimated time of arrival in minutes."),
+  dispatchAddress: z.string().describe("The human-readable address of the distress call."),
+  hazardStatus: z.string().optional().describe("Any identified hazards at the location."),
+  responderRouteId: z.string().optional().describe("Reference ID for the assigned route."),
 });
 
 export async function getAIDrivenDispatchStatus(input: z.infer<typeof SOSDispatchStatusInputSchema>) {
@@ -32,21 +32,27 @@ export async function getAIDrivenDispatchStatus(input: z.infer<typeof SOSDispatc
 
 const prompt = ai.definePrompt({
   name: 'aiDrivenDispatchStatusPrompt',
+  system: `You are a high-level Emergency Command AI. 
+Your priority is accuracy and speed. You MUST use the provided tools to gather real-world data. 
+Do not guess addresses or arrival times. 
+Once you have used the tools to find the best unit and ETA, you MUST provide the final result in the requested JSON format.`,
   input: {schema: SOSDispatchStatusInputSchema},
   output: {schema: SOSDispatchStatusOutputSchema},
   tools: [findNearbyPlaces, getOptimalRoute, getAddressFromCoords, evaluateDispatchOptions],
-  prompt: `You are a high-level Emergency Command AI.
+  prompt: `A distress signal has been received.
 
-A SOS has been received for a {{emergencyType}} at location {{userLocation}}.
+Emergency Details:
+- Type: {{emergencyType}}
+- Coordinates: {{userLocation}}
 
-Plan of Action:
-1. Use 'getAddressFromCoords' to confirm the physical address of the distress call.
-2. Use 'findNearbyPlaces' to locate the top 3 nearest units (e.g. Fire Stations if type is Fire).
-3. Use 'evaluateDispatchOptions' (Distance Matrix) to compare travel times of these units to the user.
-4. Once the fastest unit is selected, use 'getOptimalRoute' to get the final precise ETA and route geometry.
-5. Provide a summary status to the user.
+MANDATORY PROTOCOL:
+1. Confirm the street address by calling 'getAddressFromCoords' with the user location.
+2. Search for the nearest relevant emergency units (e.g., "Hospital" for Medical, "Fire Station" for Fire) using 'findNearbyPlaces'.
+3. Use 'evaluateDispatchOptions' (Distance Matrix) to compare travel times for the discovered units.
+4. Select the fastest unit and call 'getOptimalRoute' to get a precise ETA.
+5. Provide the final dispatch status in the required JSON schema.
 
-Ensure you act with extreme urgency. Return a structured JSON response.`,
+Perform these steps now.`,
 });
 
 const aiDrivenDispatchStatusFlow = ai.defineFlow(
@@ -57,6 +63,9 @@ const aiDrivenDispatchStatusFlow = ai.defineFlow(
   },
   async input => {
     const {output} = await prompt(input);
-    return output!;
+    if (!output) {
+      throw new Error("Emergency AI failed to generate a valid dispatch status.");
+    }
+    return output;
   }
 );
