@@ -1,16 +1,41 @@
 
 "use client";
 
-import { User, History, Shield, LogOut, ChevronRight, AlertTriangle, FileText, Settings } from "lucide-react";
+import { User, History, Shield, LogOut, ChevronRight, AlertTriangle, FileText, Settings, Share2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
 
 export function ProfileHistory() {
+  const { toast } = useToast();
+  
   const history = [
     { id: "1", type: "SOS", date: "Oct 24, 2024", time: "22:15", status: "Resolved", details: "Medical Emergency" },
     { id: "2", type: "REPORT", date: "Sep 12, 2024", time: "09:30", status: "Closed", details: "Road Hazard Reported" },
     { id: "3", type: "SOS", date: "Aug 05, 2024", time: "18:45", status: "Resolved", details: "Fire Hazard" },
   ];
+
+  const handleShare = async () => {
+    const shareData = {
+      title: 'RESQ-LINK',
+      text: 'Check out this AI-Powered Emergency SOS and Incident Reporting system.',
+      url: window.location.origin,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(window.location.origin);
+        toast({
+          title: "Link Copied",
+          description: "System link copied to clipboard.",
+        });
+      }
+    } catch (err) {
+      console.error("Error sharing:", err);
+    }
+  };
 
   return (
     <div className="p-6 space-y-8 animate-fade-in">
@@ -77,6 +102,18 @@ export function ProfileHistory() {
       <div className="space-y-3 pt-4">
         <SettingsButton icon={<Settings size={20} />} label="System Preferences" />
         <SettingsButton icon={<Shield size={20} />} label="Security & Privacy" />
+        <button 
+          onClick={handleShare}
+          className="w-full glass-card p-4 flex items-center justify-between hover:bg-white/10 transition-all group"
+        >
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center group-hover:bg-accent/20 transition-all">
+              <Share2 size={20} className="text-accent" />
+            </div>
+            <span className="font-headline text-xl tracking-wider uppercase">Share System Link</span>
+          </div>
+          <ChevronRight size={20} className="text-muted-foreground" />
+        </button>
         <button className="w-full flex items-center justify-between p-4 rounded-2xl text-red-500 hover:bg-red-500/10 transition-all group">
           <div className="flex items-center gap-4">
             <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center group-hover:scale-110 transition-all">
