@@ -14,17 +14,50 @@ export interface MapplsPlace {
   distance?: number;
 }
 
+/**
+ * Converts a text address into coordinates.
+ */
+export async function geocode(address: string): Promise<MapplsPlace | null> {
+  const apiKey = process.env.MAPPLS_API_KEY;
+  if (!apiKey) return { placeName: address, placeAddress: address, latitude: 28.6139, longitude: 77.2090 };
+
+  try {
+    const response = await fetch(
+      `${MAPPLS_BASE_URL}/geocode?address=${encodeURIComponent(address)}`,
+      {
+        headers: { 'Authorization': `Bearer ${apiKey}` },
+      }
+    );
+    if (!response.ok) return null;
+    const data = await response.json();
+    const loc = data.copResults;
+    if (loc) {
+      return {
+        placeName: loc.formattedAddress,
+        placeAddress: loc.formattedAddress,
+        latitude: parseFloat(loc.latitude),
+        longitude: parseFloat(loc.longitude),
+      };
+    }
+    return null;
+  } catch (error) {
+    console.error('Mappls Geocode Error:', error);
+    return null;
+  }
+}
+
+/**
+ * Searches for nearby places based on keywords and location.
+ */
 export async function searchNearby(
   query: string,
   location: string,
   radius: number = 5000
 ): Promise<MapplsPlace[]> {
   const apiKey = process.env.MAPPLS_API_KEY;
-  if (!apiKey) throw new Error('MAPPLS_API_KEY is not configured');
+  if (!apiKey) return getMockNearbyData(query);
 
   try {
-    // This assumes a standard Mappls Nearby Search API structure
-    // In a production app, you might need to handle OAuth2 token exchange first
     const response = await fetch(
       `${MAPPLS_BASE_URL}/nearby/json?keywords=${encodeURIComponent(query)}&refLocation=${location}&radius=${radius}`,
       {
@@ -34,16 +67,25 @@ export async function searchNearby(
       }
     );
 
-    if (!response.ok) return getMockNearbyData(query); // Fallback for demo if key is invalid
+    if (!response.ok) return getMockNearbyData(query);
 
     const data = await response.json();
-    return data.suggestedLocations || [];
+    return (data.suggestedLocations || []).map((loc: any) => ({
+      placeName: loc.placeName,
+      placeAddress: loc.placeAddress,
+      latitude: loc.latitude,
+      longitude: loc.longitude,
+      distance: loc.distance,
+    }));
   } catch (error) {
     console.error('Mappls Nearby Error:', error);
     return getMockNearbyData(query);
   }
 }
 
+/**
+ * Calculates distance and duration between two points.
+ */
 export async function getDistance(
   start: string,
   end: string
@@ -58,8 +100,8 @@ export async function getDistance(
     const data = await response.json();
     if (data.results && data.results[0]) {
       return {
-        distance: data.results[0].length / 1000, // to km
-        duration: Math.round(data.results[0].duration / 60), // to minutes
+        distance: data.results[0].length / 1000,
+        duration: Math.round(data.results[0].duration / 60),
       };
     }
     return { distance: 5, duration: 10 };
@@ -68,7 +110,6 @@ export async function getDistance(
   }
 }
 
-// Mock data generator for development/fallback
 function getMockNearbyData(query: string): MapplsPlace[] {
   return [
     {

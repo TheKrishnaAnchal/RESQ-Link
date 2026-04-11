@@ -1,6 +1,6 @@
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
-import { searchNearby, getDistance } from '@/services/mappls';
+import { searchNearby, getDistance, geocode } from '@/services/mappls';
 
 /**
  * Tool to find nearby emergency services using Mappls.
@@ -17,6 +17,8 @@ export const findNearbyEmergencyServices = ai.defineTool(
     outputSchema: z.array(z.object({
       name: z.string(),
       address: z.string(),
+      latitude: z.number(),
+      longitude: z.number(),
       distance: z.number().optional(),
     })),
   },
@@ -25,6 +27,8 @@ export const findNearbyEmergencyServices = ai.defineTool(
     return results.map(r => ({
       name: r.placeName,
       address: r.placeAddress,
+      latitude: r.latitude,
+      longitude: r.longitude,
       distance: r.distance
     }));
   }
@@ -51,6 +55,33 @@ export const calculateTravelInfo = ai.defineTool(
     return {
       distanceKm: info.distance,
       durationMinutes: info.duration
+    };
+  }
+);
+
+/**
+ * Tool to convert an address into coordinates.
+ */
+export const geocodeAddress = ai.defineTool(
+  {
+    name: 'geocodeAddress',
+    description: 'Converts a human-readable address into GPS coordinates.',
+    inputSchema: z.object({
+      address: z.string().describe('The full address to geocode.'),
+    }),
+    outputSchema: z.object({
+      latitude: z.number(),
+      longitude: z.number(),
+      formattedAddress: z.string(),
+    }).nullable(),
+  },
+  async (input) => {
+    const result = await geocode(input.address);
+    if (!result) return null;
+    return {
+      latitude: result.latitude,
+      longitude: result.longitude,
+      formattedAddress: result.placeAddress,
     };
   }
 );

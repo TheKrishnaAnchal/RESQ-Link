@@ -8,7 +8,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import { findNearbyEmergencyServices, calculateTravelInfo } from '@/ai/tools/mappls-tools';
+import { findNearbyEmergencyServices, calculateTravelInfo, geocodeAddress } from '@/ai/tools/mappls-tools';
 
 const SOSDispatchStatusInputSchema = z
   .object({
@@ -18,8 +18,7 @@ const SOSDispatchStatusInputSchema = z
       .describe("The type of emergency, e.g., 'Fire', 'Medical', 'Flood'."),
     userLocation: z
       .string()
-      .default("28.6139,77.2090")
-      .describe("The user's current GPS coordinates as 'lat,lng'."),
+      .describe("The user's location. Can be 'lat,lng' coordinates or a physical address."),
   })
   .describe('Input for generating AI-driven dispatch status.');
 export type SOSDispatchStatusInput = z.infer<typeof SOSDispatchStatusInputSchema>;
@@ -40,6 +39,10 @@ const SOSDispatchStatusOutputSchema = z
       .string()
       .optional()
       .describe('Address of the assigned unit.'),
+    log: z
+      .array(z.string())
+      .optional()
+      .describe('Step-by-step reasoning log of the dispatch decisions.'),
   })
   .describe('Output containing AI-driven dispatch status information.');
 export type SOSDispatchStatusOutput = z.infer<typeof SOSDispatchStatusOutputSchema>;
@@ -54,17 +57,19 @@ const prompt = ai.definePrompt({
   name: 'aiDrivenDispatchStatusPrompt',
   input: {schema: SOSDispatchStatusInputSchema},
   output: {schema: SOSDispatchStatusOutputSchema},
-  tools: [findNearbyEmergencyServices, calculateTravelInfo],
+  tools: [findNearbyEmergencyServices, calculateTravelInfo, geocodeAddress],
   prompt: `You are an emergency dispatch AI. 
 
-The user has activated an SOS for a {{emergencyType}} emergency at coordinates {{userLocation}}.
+The user has activated an SOS for a {{emergencyType}} emergency at location "{{userLocation}}".
 
-Your task:
-1. Use 'findNearbyEmergencyServices' to find appropriate units (e.g., search for "Hospital" if Medical, "Fire Station" if Fire).
-2. Once you find the nearest unit, use 'calculateTravelInfo' to determine the travel time from that unit's location to the user.
-3. Return the results as a structured dispatch status.
+Your protocol:
+1. Determine if the location is coordinates (lat,lng) or an address. If it's an address, use 'geocodeAddress' to get coordinates.
+2. Use 'findNearbyEmergencyServices' with the coordinates to find the closest appropriate units (Hospitals for Medical, Fire Stations for Fire, Police for others).
+3. Select the single nearest unit.
+4. Use 'calculateTravelInfo' to get the real-time ETA from that unit's location to the user.
+5. Return the results as a structured dispatch status.
 
-Be precise. If no specific type is provided, default to searching for "Police Station".`,
+Always prioritize speed and accuracy. Include a brief log of the tools you used in the 'log' field.`,
 });
 
 const aiDrivenDispatchStatusFlow = ai.defineFlow(
