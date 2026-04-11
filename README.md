@@ -2,13 +2,29 @@
 
 RESQ-LINK is a high-performance, mobile-first emergency SOS and incident reporting platform. Built with Next.js, Genkit, and Mappls (MapmyIndia) APIs, it provides real-time AI-driven dispatch optimization for critical situations.
 
-## 🚀 Features
+## 🚀 Quick Start: Pushing to GitHub
 
-- **One-Touch SOS**: High-stakes hold-to-activate trigger with haptic feedback.
-- **AI Dispatch Agent**: Intelligent responder selection using Mappls Distance Matrix and Routing.
-- **Incident Analysis**: Natural language incident classification using Genkit AI.
-- **Agency Directory**: Real-time discovery of nearby hospitals, fire stations, and police precincts.
-- **Modern UI**: Dark-mode glassmorphic interface designed for clarity under pressure.
+If you see the error `'origin' does not appear to be a git repository`, follow these exact steps:
+
+1.  **Create a Repository**: Go to [github.com/new](https://github.com/new) and create a repository named `resq-link`.
+2.  **Copy the URL**: Copy the HTTPS link (e.g., `https://github.com/YOUR_USERNAME/resq-link.git`).
+3.  **Link and Push**: Run these commands in your terminal:
+
+```bash
+# Initialize if you haven't already
+git init
+
+# Add the remote (Replace <URL> with the one you copied)
+git remote add origin <URL>
+
+# Commit your changes
+git add .
+git commit -m "Initial commit of RESQ-LINK platform"
+
+# Push to the main branch
+git branch -M main
+git push -u origin main
+```
 
 ## 🛠️ Tech Stack
 
@@ -18,38 +34,13 @@ RESQ-LINK is a high-performance, mobile-first emergency SOS and incident reporti
 - **Styling**: Tailwind CSS & ShadCN UI
 - **Typography**: Bebas Neue & DM Sans
 
-## 🚦 Getting Started
+## 🚦 Environment Variables
 
-### Prerequisites
-
-- Node.js 20+
-- A Mappls API Key
-- A Google AI (Gemini) API Key
-
-### Installation
-
-1. Clone the repository:
-   ```bash
-   git clone <your-repo-url>
-   cd resq-link
-   ```
-
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Configure Environment Variables:
-   Create a `.env` file in the root:
-   ```env
-   GOOGLE_GENAI_API_KEY=your_gemini_key
-   MAPPLS_API_KEY=your_mappls_key
-   ```
-
-4. Run the development server:
-   ```bash
-   npm run dev
-   ```
+Create a `.env` file in the root:
+```env
+GOOGLE_GENAI_API_KEY=your_gemini_key
+MAPPLS_API_KEY=your_mappls_key
+```
 
 ## 🧠 AI Tools (The "MCP" Layer)
 
@@ -57,7 +48,7 @@ The application utilizes Genkit Tools to interact with real-world location data:
 - `findNearbyPlaces`: Locates emergency infrastructure.
 - `evaluateDispatchOptions`: Compares responder times via Distance Matrix.
 - `getOptimalRoute`: Calculates precise ETA and turn-by-turn paths.
-- `geocodeAddress`: Converts physical addresses to coordinates for rescue accuracy.
+- `getAddressFromCoords`: Converts physical addresses to coordinates for rescue accuracy.
 
 ## 📄 License
 
