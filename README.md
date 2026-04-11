@@ -2,6 +2,11 @@
 
 RESQ-LINK is a high-performance, mobile-first emergency SOS and incident reporting platform. Built with Next.js, Genkit, and Mappls (MapmyIndia) APIs, it provides real-time AI-driven dispatch optimization for critical situations.
 
+## 🤖 AI & Context
+This project is optimized for AI-to-AI collaboration. If you are using this code with another LLM (like Claude, GPT-4, or another agent), please refer to:
+- `llms.txt`: Quick machine-readable summary.
+- `project-context.md`: Detailed architecture and design breakdown.
+
 ## 🚀 Quick Start: Pushing to GitHub
 
 If you see the error `'origin' does not appear to be a git repository`, follow these exact steps:

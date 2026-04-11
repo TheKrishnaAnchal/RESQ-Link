@@ -1,0 +1,30 @@
+# RESQ-LINK | AI-Powered Emergency Response System
+
+## Project Overview
+A high-performance, mobile-first emergency SOS and incident reporting platform built with Next.js, Genkit, and Mappls (MapmyIndia).
+
+## Tech Stack
+- Framework: Next.js 15 (App Router)
+- AI: Genkit (Gemini 2.5 Flash)
+- Location: Mappls APIs (Routing, Distance Matrix, Nearby Search, Geocoding)
+- Styling: Tailwind CSS, ShadCN UI
+- Fonts: Bebas Neue (Headline), DM Sans (Body)
+
+## Core Capabilities (AI Tools)
+- `findNearbyPlaces`: Locates emergency services (hospitals, fire stations).
+- `evaluateDispatchOptions`: Compares responder times via Distance Matrix.
+- `getOptimalRoute`: Precise ETA and routing.
+- `getAddressFromCoords`: Reverse geocoding for accuracy.
+- `geocodeAddress`: Address to coordinate conversion.
+
+## Key Files
+- `src/ai/genkit.ts`: AI configuration.
+- `src/ai/tools/mappls-tools.ts`: Tool definitions (MCP-style).
+- `src/ai/flows/ai-driven-dispatch-status-flow.ts`: Core dispatch logic.
+- `src/services/mappls.ts`: API service layer.
+- `src/app/page.tsx`: Main UI entry point.
+- `src/components/sos/SOSSection.tsx`: SOS activation UI.
+
+## Environment Variables
+- GOOGLE_GENAI_API_KEY
+- MAPPLS_API_KEY
