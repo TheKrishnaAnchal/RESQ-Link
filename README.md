@@ -42,15 +42,3 @@ The core orchestration relies on decoupled, semantic tools exposed to the LLM ag
 * `evaluateDispatchOptions`: Maps resource capacity against real-time distance matrices to locate optimal emergency assets.
 * `getOptimalRoute`: Computes turn-by-turn routing paths and adaptive ETAs under dynamically changing infrastructure conditions.
 
----
-
-## 🚦 Configuration & Environment Setup
-
-This project utilizes environment variables to maintain operational security. **Never commit actual credentials, secret strings, or active `.env` files to source control.** 
-
-### 1. Local Environment Configuration
-A template configuration map is provided in the root directory as `.env.example`. To initialize your local development cluster:
-
-```bash
-# Duplicate the secure template configuration
-cp .env.example .env
