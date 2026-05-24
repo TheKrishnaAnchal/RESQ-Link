@@ -1,60 +1,56 @@
-# RESQ-LINK | AI-Powered Emergency Response System
+# 🚨 RESQ-LINK | AI-Driven Disaster Response Platform
 
-RESQ-LINK is a high-performance, mobile-first emergency SOS and incident reporting platform. Built with Next.js, Genkit, and Mappls (MapmyIndia) APIs, it provides real-time AI-driven dispatch optimization for critical situations.
+RESQ-LINK is a high-performance, mobile-first emergency SOS, incident reporting, and multi-agency dispatch coordination platform. Utilizing an advanced Model Context Protocol (MCP) architecture, the system ingests unstructured, multimodal disaster inputs, processes them via open-source LLMs, and optimizes real-time emergency routing and live location tracking over low-latency infrastructure.
 
-## 🤖 AI & Context
-This project is optimized for AI-to-AI collaboration. If you are using this code with another LLM (like Claude, GPT-4, or another agent), please refer to:
-- `llms.txt`: Quick machine-readable summary.
-- `project-context.md`: Detailed architecture and design breakdown.
+---
 
-## 🚀 Quick Start: Pushing to GitHub
+## 🤖 AI & Context (LLM-Friendly)
 
-If you see the error `'origin' does not appear to be a git repository`, follow these exact steps:
+This codebase is fully optimized for AI-to-AI collaboration. If you are developing, extending, or maintaining this system using an AI agent or assistant (e.g., Gemini, Claude, GPT-4o), please point them to these context configuration maps:
+* [`llms.txt`](./llms.txt) — High-density, machine-readable project topology.
+* [`project-context.md`](./project-context.md) — Comprehensive structural breakdown, state flow, and data schemas.
 
-1.  **Create a Repository**: Go to [github.com/new](https://github.com/new) and create a repository named `resq-link`.
-2.  **Copy the URL**: Copy the HTTPS link (e.g., `https://github.com/YOUR_USERNAME/resq-link.git`).
-3.  **Link and Push**: Run these commands in your terminal:
+---
 
-```bash
-# Initialize if you haven't already
-git init
+## 🚀 Key Features & Core Architecture
 
-# Add the remote (Replace <URL> with the one you copied)
-git remote add origin <URL>
+* **🧠 Model Context Protocol (MCP) Layer:** Bridges LLM orchestration with physical execution tools, automating multi-agency dispatch and calculating operational priority based on real-world situational data.
+* **⚡ Multimodal Ingestion Pipeline:** Parses unstructured emergency data (text, user inputs) using open-source LLMs (Llama 3.1) and transforms it into strictly validated, structured relational schemas.
+* **📍 Real-Time State Tracking & Geocoding:** Implements a high-throughput backend using **FastAPI** and persistent **WebSockets** for real-time reverse geocoding and ultra-low-latency tracking of victims and dispatch teams.
+* **🗺️ Smart Routing & Distance Matrices:** Dynamically evaluates emergency infrastructure metrics to optimize route execution and reduce critical response times.
 
-# Commit your changes
-git add .
-git commit -m "Initial commit of RESQ-LINK platform"
-
-# Push to the main branch
-git branch -M main
-git push -u origin main
-```
+---
 
 ## 🛠️ Tech Stack
 
-- **Framework**: [Next.js 15](https://nextjs.org/) (App Router)
-- **AI Engine**: [Genkit](https://firebase.google.com/docs/genkit) (Gemini 2.5 Flash)
-- **Location Services**: [Mappls APIs](https://www.mappls.com/) (Geocoding, Routing, Nearby Search)
-- **Styling**: Tailwind CSS & ShadCN UI
-- **Typography**: Bebas Neue & DM Sans
+| Layer | Technology |
+| :--- | :--- |
+| **Backend Framework** | FastAPI (Python) |
+| **Asynchronous Engine** | Persistent WebSockets (Low-Latency State Sync) |
+| **AI Architecture** | Model Context Protocol (MCP), Llama 3.1 |
+| **Location Intelligence**| Geospatial/Mapping APIs (Reverse Geocoding & Routing Matrices) |
+| **Data Validation** | Pydantic (Strict Schema Enforcement) |
 
-## 🚦 Environment Variables
+---
 
-Create a `.env` file in the root:
-```env
-GOOGLE_GENAI_API_KEY=your_gemini_key
-MAPPLS_API_KEY=your_mappls_key
-```
+## 🧠 MCP Tool Layer (Operational Intelligence)
 
-## 🧠 AI Tools (The "MCP" Layer)
+The core orchestration relies on decoupled, semantic tools exposed to the LLM agent via the MCP layer:
 
-The application utilizes Genkit Tools to interact with real-world location data:
-- `findNearbyPlaces`: Locates emergency infrastructure.
-- `evaluateDispatchOptions`: Compares responder times via Distance Matrix.
-- `getOptimalRoute`: Calculates precise ETA and turn-by-turn paths.
-- `getAddressFromCoords`: Converts physical addresses to coordinates for rescue accuracy.
+* `getAddressFromCoords`: Ingests telemetry coordinates to resolve exact physical incident perimeters.
+* `findNearbyPlaces`: Queries critical structural infrastructure (hospitals, shelters, triage nodes) within the disaster radius.
+* `evaluateDispatchOptions`: Maps resource capacity against real-time distance matrices to locate optimal emergency assets.
+* `getOptimalRoute`: Computes turn-by-turn routing paths and adaptive ETAs under dynamically changing infrastructure conditions.
 
-## 📄 License
+---
 
-MIT License - Copyright (c) 2024 RESQ-LINK Team
+## 🚦 Configuration & Environment Setup
+
+This project utilizes environment variables to maintain operational security. **Never commit actual credentials, secret strings, or active `.env` files to source control.** 
+
+### 1. Local Environment Configuration
+A template configuration map is provided in the root directory as `.env.example`. To initialize your local development cluster:
+
+```bash
+# Duplicate the secure template configuration
+cp .env.example .env
