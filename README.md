@@ -4,14 +4,6 @@ RESQ-LINK is a high-performance, mobile-first emergency SOS, incident reporting,
 
 ---
 
-## 🤖 AI & Context (LLM-Friendly)
-
-This codebase is fully optimized for AI-to-AI collaboration. If you are developing, extending, or maintaining this system using an AI agent or assistant (e.g., Gemini, Claude, GPT-4o), please point them to these context configuration maps:
-* [`llms.txt`](./llms.txt) — High-density, machine-readable project topology.
-* [`project-context.md`](./project-context.md) — Comprehensive structural breakdown, state flow, and data schemas.
-
----
-
 ## 🚀 Key Features & Core Architecture
 
 * **🧠 Model Context Protocol (MCP) Layer:** Bridges LLM orchestration with physical execution tools, automating multi-agency dispatch and calculating operational priority based on real-world situational data.
